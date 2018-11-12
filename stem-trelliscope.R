@@ -1,31 +1,35 @@
-# Trelliscope for interactive small multiples
-# See https://hafen.github.io/trelliscopejs/index.html
-# Testing here for displaying exam results data
+# Test: Trelliscope for interactive small multiples
+# See https://hafen.github.io/trelliscopejs/index.html by Ryan Hafen
 # Matt Dray
-# Jan 2018
+# Jan 2018, updated November 2018
 
-# TODO --------------------------------------------------------------------
-
-# * Comment the code
-# * Apply layer with LA and national means to each school plot
-# * Investigate use of full dataset in output
 
 # Load packages -----------------------------------------------------------
 
-library(dplyr)
-library(readxl)
-library(tidyr)
-library(ggplot2)
-library(janitor)
-library(rbokeh)
-library(trelliscopejs)  # devtools::install_github("hafen/trelliscopejs")
+
+library(dplyr)  # tidy data manipulation
+library(readxl)  # read Excel files
+library(tidyr)   # tidy dataframes
+library(ggplot2)  # tidy plots
+library(janitor)  # misc tidy convenience functions
+library(rbokeh)  # R interface to Bokeh plotting library
+library(trelliscopejs)  # small multiples
+
 
 # School-level data -------------------------------------------------------
+
+
+# Download file
+
+download.file(
+  url = "https://assets.publishing.service.gov.uk/government/uploads/system/uploads/attachment_data/file/593438/SFR05_2017_Maths_and_science_tables_13_and_14_updated.xlsm",
+  destfile = "data/maths_science_2017.xlsm"
+)
 
 # Read raw data
 
 stem_sch_raw <- readxl::read_excel(
-  "data/SFR05_2017_Maths_and_science_tables_13_and_14_updated.xlsm",
+  "data/maths_science_2017.xlsm",
   sheet = "Table 13b",  # worksheet title
   skip = 7,  # column names in eighth row
   na = c("", "x", "NE", "NEW")  # NA values
@@ -50,7 +54,9 @@ stem_sch <- stem_sch_raw %>%
   dplyr::mutate(urn = as.character(urn)) %>% 
   tidyr::gather(key = subject, value = entry_sch, math:comp)
 
+
 # LA-level data -----------------------------------------------------------
+
 
 # Read raw data
   
@@ -77,7 +83,9 @@ stem_la <- stem_la_raw %>%
   dplyr::filter(!is.na(la_name)) %>%  # remove rows without LA name
   tidyr::gather(key = subject, value = entry_la, math:comp)
 
+
 # Join and arrange --------------------------------------------------------
+
 
 # Join la to sch data
 
@@ -99,7 +107,9 @@ stem_la_tobind <- stem_sch_la %>%
 
 stem_sch_la_bind <- bind_rows(stem_sch_tobind, stem_la_tobind)
 
+
 # Trelliscope -------------------------------------------------------------
+
 
 # Example subset with no national or la means
 
